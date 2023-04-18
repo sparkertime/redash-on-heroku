@@ -5,7 +5,7 @@ Dockerfiles for hosting redash on heroku
 ## How to create
 
 ```sh
-git clone git@github.com:willnet/redash-on-heroku.git
+git clone git@github.com:sparkertime/redash-on-heroku.git
 cd redash-on-heroku
 heroku create --stack=container your_app_name
 ```
@@ -16,11 +16,7 @@ heroku create --stack=container your_app_name
 
 Add following addons on heroku dashboard.
 
-- heroku postgres
-- Redis Cloud(or something)
-- sendgrid (or something)
-
-Choose redis addon allow more than or equal 30 connections. Otherwise you will get connection errors frequently.
+- Redis Cloud
 
 ### Add environment variables
 
@@ -28,7 +24,7 @@ Add environment variables like following.
 
 ```sh
 heroku config:set PYTHONUNBUFFERED=0
-heroku config:set QUEUES=queries,scheduled_queries,celery
+heroku config:set QUEUES=periodic emails default scheduled_queries queries schemas
 heroku config:set REDASH_COOKIE_SECRET=YOUR_SECRET_TOKEN
 heroku config:set REDASH_SECRET_KEY=YOUR_SECRET_KEY
 heroku config:set REDASH_DATABASE_URL=YOUR_POSTGRES_URL
@@ -63,15 +59,16 @@ heroku run /app/manage.py database create_tables
 
 ```sh
 heroku ps:scale worker=1
+heroku ps:scale scheduler=1
 ```
 
 ## How to upgrade
 
 ```sh
-heroku ps:scale web=0 worker=0
+heroku ps:scale web=0 worker=0 scheduler=0
 git push heroku master
 heroku run /app/manage.py db upgrade
-heroku ps:scale web=1 worker=1
+heroku ps:scale web=1 worker=1 scheduler=1
 ```
 
 See also https://redash.io/help/open-source/admin-guide/how-to-upgrade
